@@ -167,14 +167,15 @@ template <typename T, typename NodeT> void BTree<T, NodeT>::rotateLeft(NodeT *q)
         pl->parent = q;
     }
 
-    p->parent = q->parent;
+    NodeT *oldParent = q->parent;
+    p->parent = oldParent;
 
-    if (!p->parent) {
+    if (!oldParent) {
         this->root = p;
-    } else if (q == p->parent->right) {
-        p->parent->right = p;
+    } else if (q == oldParent->right) {
+        oldParent->right = p;
     } else {
-        p->parent->left = p;
+        oldParent->left = p;
     }
 
     q->parent = p;
@@ -195,19 +196,20 @@ template <typename T, typename NodeT> void BTree<T, NodeT>::rotateRight(NodeT *q
         pr->parent = q;
     }
 
-    p->parent = q->parent;
+    NodeT *oldParent = q->parent;
+    p->parent = oldParent;
 
-    if (!p->parent) 
+    if (!oldParent) 
     {
         this->root = p;
     } 
-    else if (q == p->parent->right)
+    else if (q == oldParent->right)
     {
-      p->parent->right = p;
+      oldParent->right = p;
     } 
     else 
     {
-      p->parent->left = p;
+      oldParent->left = p;
     }
 
     q->parent = p;

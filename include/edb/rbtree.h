@@ -1,6 +1,7 @@
 #pragma once
 
 #include <edb/btree.h>
+#include <utility>
 
 namespace edb
 {
@@ -25,73 +26,11 @@ namespace edb
             void removeAndFix(T value) override;
 
         private:
-            void insertionCases(RBNode<T>* node);
             RBNode<T>* remotionCases(RBNode<T>* node);
     };
 }
 
 // implementation
-
-template <typename T> void edb::RBTree<T>::insertionCases(RBNode<T> *node) {
-    RBNode<T> *parent = node->parent;
-    RBNode<T> *grandparent = parent->parent;
-    if (!grandparent)
-    {
-        node = parent;
-        return;
-    }
-    RBNode<T> *uncle =
-        (parent == grandparent->right) ? grandparent->left : grandparent->right;
-
-    if (uncle &&
-        (parent->color == R && uncle->color == R)) // CASE 1
-    {
-        parent->color = B;
-        uncle->color = B;
-        node = grandparent;
-    } 
-    else if (parent->color == R) // WILL HAVE ALL THE OTHER CASES
-    {
-        if (parent == grandparent->left && node == parent->left) // CASE 2
-        {
-            this->rotateRight(grandparent);
-            parent->color = B;
-            grandparent->color = R;
-            node = parent;
-        }
-        else if (parent == grandparent->left && node == parent->right) // CASE 3
-        {
-            this->rotateLeft(parent);
-            this->rotateRight(grandparent);
-
-            parent->color = B;
-            grandparent->color = R;
-            
-            node = parent;
-        }
-        else if(parent == grandparent->right && node == parent->right) // CASE 4
-        {
-            this->rotateLeft(grandparent);
-            parent->color = B;
-            grandparent->color = R;
-            node = parent;
-        }
-        else if(parent == grandparent->right && node == parent->left) // CASE 5
-        {
-          this->rotateRight(parent);
-
-          this->rotateLeft(grandparent);
-
-          parent->color = B;
-          grandparent->color = R;
-          node->color = B;
-
-          node = parent;
-        }
-    }
-
-    node->color = (node == this->root) ? B : R;
-}
 
 template <typename T>
 edb::RBNode<T> *edb::RBTree<T>::remotionCases(RBNode<T> *node) 
@@ -184,24 +123,79 @@ edb::RBNode<T> *edb::RBTree<T>::remotionCases(RBNode<T> *node)
     return node;
 }
 
-template <typename T> void edb::RBTree<T>::insertAndFix(T value) 
+template <typename T> 
+void edb::RBTree<T>::insertAndFix(T value) 
 {
     RBNode<T> *node = new RBNode<T>(value);
-    if (this->insert(node) == false) // will return true if a insertion was made
-    {                   
-        delete node;             //  or if the new node equals the root
+    if (this->insert(node) == false) {
+        delete node;
         return;
     }
 
-    if(node == this->root)
-    {
-        this->root->color = B;
+    if (node == this->root) {
+        node->color = B;
         return;
     }
-    // balances
-    while (node != this->root && node->parent && node->parent->color == R)
-        insertionCases(node);
 
+    // Loop de balanceamento: Continua enquanto o nó não for a raiz
+    while (node != this->root) {
+        RBNode<T> *parent = node->parent;
+        
+        // C.1: Fim do balanceamento se o pai é preto (ou nó atingiu a raiz)
+        if (parent->color == B)
+            break;
+
+        // O avô deve existir se o pai for vermelho (pois a raiz é preta).
+        RBNode<T> *grandparent = parent->parent;
+        if (!grandparent) { // Caso o parent seja a raiz e tenha sido pintado de R em algum Caso 1
+             break;
+        }
+        
+        bool parentOnLeft = (grandparent->left == parent);
+        RBNode<T> *uncle = parentOnLeft ? grandparent->right : grandparent->left;
+
+        // CASO 1: Recoloração quando tio é vermelho
+        if (uncle && uncle->color == R) {
+            parent->color = B;
+            uncle->color = B;
+            grandparent->color = R;
+            node = grandparent; // Continua a correção a partir do avô
+            continue;
+        }
+
+        // CASO 2, 3, 4 e 5: Rotações quando tio é preto (ou NIL)
+        if (parentOnLeft) {
+            // CASO 3: Left-Right (Rotação Dupla - Transforma em Left-Left)
+            if (node == parent->right) {
+                this->rotateLeft(parent);
+                // CORREÇÃO ESSENCIAL: O antigo 'node' agora é o 'parent' e vice-versa.
+                // O swap garante que a próxima etapa (Left-Left) use os ponteiros corretos.
+                std::swap(node, parent); 
+            }
+            
+            // CASO 2: Left-Left (Rotação Simples) ou Caso 3 transformado
+            parent->color = B;
+            grandparent->color = R;
+            this->rotateRight(grandparent);
+        } else {
+            // CASO 5: Right-Left (Rotação Dupla - Transforma em Right-Right)
+            if (node == parent->left) {
+                this->rotateRight(parent);
+                // CORREÇÃO ESSENCIAL: O swap re-alinha para o Case Right-Right
+                std::swap(node, parent); 
+            }
+            
+            // CASO 4: Right-Right (Rotação Simples) ou Caso 5 transformado
+            parent->color = B;
+            grandparent->color = R;
+            this->rotateLeft(grandparent);
+        }
+
+        // Se uma rotação ocorreu (Casos 2, 3, 4, 5), a violação foi resolvida localmente.
+        // O loop irá terminar na próxima iteração, pois o novo pai será Preto.
+    }
+
+    // Garante raiz sempre preta
     this->root->color = B;
 }
 
