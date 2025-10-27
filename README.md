@@ -22,15 +22,15 @@ Para a execução do projeto, você deverá ter os seguintes componentes instala
     cd b-trees
 - Compile o projeto com CMake
 
-  # Crie o repositório para build do projeto
+  - Crie o repositório para build do projeto
   mkdir build
   
   cd build
   
-  # Configure o projeto
+  - Configure o projeto
   cmake ..
   
-  # Compile o projeto
+  - Compile o projeto
   cmake --build .
 
 
