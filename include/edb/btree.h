@@ -28,8 +28,6 @@ template <typename T, typename NodeT> class BTree
 
         void rotateLeft(NodeT *node);
         void rotateRight(NodeT *node);
-        void rotateLeftLeft(NodeT *node);
-        void rotateRightRight(NodeT *node);
 };
 
 // implementation
