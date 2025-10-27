@@ -16,7 +16,7 @@ namespace edb
 
         template <typename TreeT> void draw(TreeT *tree);
 
-        template <typename T> void handle_input(edb::RBTree<T> *tree);
+        template <typename TreeT> void handle_input(TreeT *tree);
     }
 }
 
@@ -37,7 +37,7 @@ template <typename NodeT> void edb::utils::drawNode(NodeT *node, int x, int y, i
     // Draw value
     DrawText(TextFormat("%d", node->data), x - 10, y - 8, 18, WHITE);
 
-    int nextOffset = offsetX > 40 ? offsetX / 2 : 40; // 40px minimum
+    int nextOffset = offsetX > 50 ? offsetX / 2 : 50; // 50px minimum
     if (node->left)
         drawNode(node->left, x - offsetX, y + 80, offsetX / 2);
     if (node->right)
@@ -48,10 +48,10 @@ template <typename TreeT> void edb::utils::draw(TreeT *tree) {
     ClearBackground(RAYWHITE);
 
     if (tree->root)
-        drawNode(tree->root, GetScreenWidth() / 2, 60, 200);
+        drawNode(tree->root, GetScreenWidth() / 2, 60, 300);
 }
 
-template <typename T> void edb::utils::handle_input(edb::RBTree<T> *tree) {
+template <typename TreeT> void edb::utils::handle_input(TreeT* tree) {
   static bool removing = false;
   static std::string input = "";
 
