@@ -35,10 +35,11 @@ Compile o projeto com CMake
 
 
 # </> Modo de uso
-Argumentos	Descrição
-ESPAÇO	Para gerar os números aleatoriamente.
--a	Para inserir algum dado.
--bs	Para remover algum dado.
+| Argumentos | Descrição |
+|:-----------|:----------|
+|ESPAÇO	| Para gerar os números aleatoriamente. |
+|-a | Para inserir algum dado. |
+|-r | Para remover algum dado. |
 
 # 👨‍💻 Alunos
 Allan Victor - @allan073
