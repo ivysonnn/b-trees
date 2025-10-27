@@ -15,12 +15,12 @@ Para a execução do projeto, você deverá ter os seguintes componentes instala
    - Matplotlib
 
 # 🚀 Como compilar
-Clone o repositório
+- Clone o repositório
 
     git clone https://github.com/ivysonnn/b-trees.git 
     
     cd b-trees
-Compile o projeto com CMake
+- Compile o projeto com CMake
 
   # Crie o repositório para build do projeto
   mkdir build
