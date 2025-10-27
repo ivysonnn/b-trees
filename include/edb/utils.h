@@ -20,7 +20,8 @@ namespace edb
     }
 }
 
-template <typename NodeT> void edb::utils::drawNode(NodeT *node, int x, int y, int offsetX) {
+template <typename NodeT> void edb::utils::drawNode(NodeT *node, int x, int y, int offsetX) 
+{
     if (!node)
         return;
 
@@ -44,59 +45,104 @@ template <typename NodeT> void edb::utils::drawNode(NodeT *node, int x, int y, i
         drawNode(node->right, x + offsetX, y + 80, offsetX / 2);
 }
 
-template <typename TreeT> void edb::utils::draw(TreeT *tree) {
+template <typename TreeT> void edb::utils::draw(TreeT *tree) 
+{
     ClearBackground(RAYWHITE);
 
     if (tree->root)
         drawNode(tree->root, GetScreenWidth() / 2, 60, 300);
 }
 
-template <typename TreeT> void edb::utils::handle_input(TreeT* tree) {
-  static bool removing = false;
-  static std::string input = "";
+template <typename TreeT> void edb::utils::handle_input(TreeT* tree) 
+{
+    static bool removing = false;
+    static bool inserting = false;
+    static std::string input = "";
 
-  if (IsKeyPressed(KEY_SPACE)) {
-    int n = 1000;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(1, n - 1);
+    if (IsKeyPressed(KEY_SPACE)) 
+    {
+        int n = 1000;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, n - 1);
 
-    int e = distrib(gen);
+        int e = distrib(gen);
 
-    tree->insertAndFix(e);
-  }
+        tree->insertAndFix(e);
+    }
 
-  if (IsKeyPressed(KEY_R) && !removing) { // input for the remove value
-    removing = true;
-    input.clear();
-  }
+    if (IsKeyPressed(KEY_R) && !removing) 
+    { // clear the input to begin removing mode
+      removing = true;
+      input.clear();
+    }
 
-  if (removing) {
+    if (IsKeyPressed(KEY_A) && !inserting) 
+    { // clear the input to begin insert mode
+      inserting = true;
+      input.clear();
+    }
+
     int key = GetCharPressed();
 
-    while (key > 0) {
-      if (key >= 48 && key <= 57)
-        input.push_back((char)key);
+    if (removing) 
+    {
+        if(key > 0)
+        {
+            if (key >= 48 && key <= 57)
+                input.push_back((char)key);
+        }
 
-      key = GetCharPressed();
+        if (IsKeyPressed(KEY_BACKSPACE) && !input.empty()) 
+        {
+            input.pop_back();
+        }
+
+        if (IsKeyPressed(KEY_ENTER)) 
+        {
+        if (!input.empty()) {
+            int value = std::stoi(input);
+            tree->removeAndFix(value);
+        }
+        removing = false;
+        }
+
+        if (IsKeyPressed(KEY_ESCAPE)) 
+        {
+            removing = false;
+        }
+
+        DrawText(("Remove: " + input).c_str(), 50, 50, 20, RED);
     }
 
-    if (IsKeyPressed(KEY_BACKSPACE) && !input.empty()) {
-      input.pop_back();
-    }
+    if (inserting) 
+    {
+        if (key > 0) 
+        {
+            if (key >= 48 && key <= 57)
+            input.push_back((char)key);
+        }
 
-    if (IsKeyPressed(KEY_ENTER)) {
-      if (!input.empty()) {
-        int value = std::stoi(input);
-        tree->removeAndFix(value);
-      }
-      removing = false;
-    }
+        if (IsKeyPressed(KEY_BACKSPACE) && !input.empty()) 
+        {
+            input.pop_back();
+        }
 
-    if (IsKeyPressed(KEY_ESCAPE)) {
-      removing = false;
-    }
+        if (IsKeyPressed(KEY_ENTER)) 
+        {
+            if (!input.empty()) 
+            {
+                int value = std::stoi(input);
+                tree->insertAndFix(value);
+            }
+            inserting = false;
+        }
 
-    DrawText(("Remove: " + input).c_str(), 50, 50, 20, RED);
-  }
+        if (IsKeyPressed(KEY_ESCAPE)) 
+        {
+            inserting = false;
+        }
+
+        DrawText(("Insert: " + input).c_str(), 50, 50, 20, RED);
+    }
 }

@@ -97,88 +97,135 @@ template <typename T> void edb::RBTree<T>::insertAndFix(T value)
 }
 
 template <typename T> void edb::RBTree<T>::removeAndFix(T value) {
-  RBNode<T> *x = this->search(value);
-  if(x)
-  {
-    this->remove(value);
-  }
-  else 
-  {
+  RBNode<T> *z = this->search(value);
+  if (!z)
     return;
+
+  RBNode<T> *y = z;
+  CColor yOriginalColor = y->color;
+  RBNode<T> *x = nullptr;
+
+  auto transplant = [&](RBNode<T> *u, RBNode<T> *v) {
+    if (!u->parent)
+      this->root = v;
+    else if (u == u->parent->left)
+      u->parent->left = v;
+    else
+      u->parent->right = v;
+    if (v)
+      v->parent = u->parent;
+  };
+
+  auto subtree_minimum = [&](RBNode<T> *n) -> RBNode<T> * {
+    while (n && n->left)
+      n = n->left;
+    return n;
+  };
+
+  if (!z->left) {
+    x = z->right;
+    transplant(z, z->right);
+  } else if (!z->right) {
+    x = z->left;
+    transplant(z, z->left);
+  } else {
+    y = subtree_minimum(z->right);
+    yOriginalColor = y->color;
+    x = y->right;
+    if (y->parent == z) {
+      if (x)
+        x->parent = y;
+    } else {
+      transplant(y, y->right);
+      y->right = z->right;
+      if (y->right)
+        y->right->parent = y;
+    }
+    transplant(z, y);
+    y->left = z->left;
+    if (y->left)
+      y->left->parent = y;
+    y->color = z->color;
   }
 
-    if (x->color == B) { 
-        while (x != this->root && x->color == B) {
-        RBNode<T> *p = x->parent;
+  // não delete z até terminar de determinar/fixar x; mas z já está fora da
+  // árvore após transplant
+  delete z;
 
-        if (!p)
-            break;
+  if (yOriginalColor == B) {
+    while (x != this->root && (!x || x->color == B)) {
+      RBNode<T> *p = x ? x->parent : nullptr;
+      if (!p)
+        break;
+      bool xIsLeft = (x == p->left);
+      RBNode<T> *s = xIsLeft ? p->right : p->left;
 
-        bool xIsLeftChild = (x == p->left);
-        RBNode<T> *s = xIsLeftChild ? p->right : p->left;
+      if (s && s->color == R) {
+        s->color = B;
+        p->color = R;
+        if (xIsLeft) {
+          this->rotateLeft(p);
+          s = p->right;
+        } else {
+          this->rotateRight(p);
+          s = p->left;
+        }
+      }
 
-        if (s && s->color == R) {
-            s->color = B;
-            p->color = R;
-            if (xIsLeftChild) {
+      if (!s || ((!s->left || s->left->color == B) &&
+                 (!s->right || s->right->color == B))) {
+        if (s)
+          s->color = R;
+        x = p;
+      } else {
+        if (xIsLeft) {
+          if (s->right && s->right->color == R) {
+            s->color = p->color;
+            p->color = B;
+            s->right->color = B;
             this->rotateLeft(p);
-            s = p->right;
-            } else {
-            this->rotateRight(p);
-            s = p->left; // O novo irmão
+            x = this->root;
+          } else {
+            if (s->left && s->left->color == R) {
+              s->left->color = B;
+              s->color = R;
+              this->rotateRight(s);
+              s = p->right;
             }
-        }
-        // CASE 2
-        if (s && (!s->left || s->left->color == B) &&
-            (!s->right || s->right->color == B))
-        {
-            s->color = R;
-            x = p;
-        }
-        else 
-        {
-            if (xIsLeftChild) {
-            // CASE 3
-            if (s->left && s->left->color == R &&
-                (!s->right || s->right->color == B)) {
-                s->left->color = B;
-                s->color = R;
-                this->rotateRight(s);
-                s = p->right;
-            }
-
-            // CASE 3
             s->color = p->color;
             p->color = B;
             if (s->right)
-                s->right->color = B;
+              s->right->color = B;
             this->rotateLeft(p);
+            x = this->root;
+          }
+        } else {
+          if (s->left && s->left->color == R) {
+            s->color = p->color;
+            p->color = B;
+            s->left->color = B;
+            this->rotateRight(p);
+            x = this->root;
+          } else {
+            if (s->right && s->right->color == R) {
+              s->right->color = B;
+              s->color = R;
+              this->rotateLeft(s);
+              s = p->left;
             }
-
-            else {
-            // CASE 3 MIRROR
-            if (s->right && s->right->color == R &&
-                (!s->left || s->left->color == B)) {
-                s->right->color = B;
-                s->color = R;
-                this->rotateLeft(s);
-                s = p->left; 
-            }
-
-            // CASE 4 MIRROR
             s->color = p->color;
             p->color = B;
             if (s->left)
-                s->left->color = B;
+              s->left->color = B;
             this->rotateRight(p);
-            }
-
             x = this->root;
+          }
         }
-        }
+      }
     }
     if (x)
-        x->color = B;
-    if (this->root)
-        this->root->color = B;
+      x->color = B;
+  }
+  if (this->root)
+    this->root->color = B;
 }

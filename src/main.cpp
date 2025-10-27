@@ -10,7 +10,8 @@ template <typename TreeT> int main_loop(TreeT *tree)
 {
     InitWindow(1280, 720, "Binary Tree");
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose()) 
+    {
         edb::utils::handle_input(tree);
         BeginDrawing();
         edb::utils::draw(tree);
@@ -37,10 +38,12 @@ int main(int argc, char** argv)
     {
         edb::RBTree<int> *tree = new edb::RBTree<int>();
         return main_loop(tree);
-    } else if (std::strcmp(argv[1], "avl") == 0) {
+    } else if (std::strcmp(argv[1], "avl") == 0) 
+    {
       edb::AVLTree<int> *tree = (edb::AVLTree<int> *)new edb::AVLTree<int>();
       return main_loop(tree);
-    } else {
+    } else 
+    {
       usage(argv);
       return 1;
     }

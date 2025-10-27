@@ -76,81 +76,59 @@ bool BTree<T, NodeT>::insert(NodeT* node)
 }
 
 template <typename T, typename NodeT> bool BTree<T, NodeT>::remove(T value) {
-    NodeT *q = search(value);
-    if (q == nullptr ||
-        q == this->root) // no such element to remove or can't remove the root
-        return false;
+  NodeT *q = search(value);
+  if (!q)
+    return false;
 
-    // CASE 3 that needs to come before 1 and 2
-    if (q->left != nullptr && q->right != nullptr) 
-    {
-        // Find the successor
-        NodeT *succ = q->right;
-        while (succ->left != nullptr)
-            succ = succ->left;
+  auto transplant = [&](NodeT *u, NodeT *v) {
+    if (!u->parent)
+      this->root = v;
+    else if (u == u->parent->left)
+      u->parent->left = v;
+    else
+      u->parent->right = v;
+    if (v)
+      v->parent = u->parent;
+  };
 
-        q->data = succ->data;
+  if (!q->left) {
+    transplant(q, q->right);
+    delete q;
+    return true;
+  } else if (!q->right) {
+    transplant(q, q->left);
+    delete q;
+    return true;
+  } else {
+    NodeT *succ = q->right;
+    while (succ->left)
+      succ = succ->left;
 
-        q = succ;
+    if (succ->parent != q) {
+      transplant(succ, succ->right);
+      succ->right = q->right;
+      if (succ->right)
+        succ->right->parent = succ;
     }
+    transplant(q, succ);
+    succ->left = q->left;
+    if (succ->left)
+      succ->left->parent = succ;
 
-    // CASE 1
-    if (q->right == nullptr && q->left == nullptr) 
-    {
-        if (q->parent->left == q)
-            q->parent->left = nullptr;
-        else if (q->parent->right == q)
-            q->parent->right = nullptr;
-
-        goto remove; // GOTO
-    }
-
-    // CASE 2.1
-    else if (q->right) 
-    {
-        if (q->parent->right == q)
-            q->parent->right = q->right;
-        else if (q->parent->left == q)
-            q->parent->left = q->right;
-
-        if (q->right)
-            q->right->parent = q->parent;
-
-        goto remove;
-    }
-
-    // CASE 2.2
-    else if (q->left) 
-    {
-        if (q->parent->right == q)
-            q->parent->right = q->left;
-        else if (q->parent->left == q)
-            q->parent->left = q->left;
-
-        if (q->left)
-            q->left->parent = q->parent;
-
-        goto remove;
-    }
-
-    remove:
-        delete q;
-        return true;
+    delete q;
+    return true;
+  }
 }
 
 template <typename T, typename NodeT> NodeT* BTree<T, NodeT>::search(T value)
 {
     NodeT* r = this->root;
-    while(!r)
+    while (r) 
     {
-        if(value == r->data)
-            return r;
-        else if(value > r->data)
-            r = r->right;
-        else
-            r = r->left;
+      if (value == r->data)
+        return r;
+      r = (value > r->data) ? r->right : r->left;
     }
-
     return nullptr;
 }
 
