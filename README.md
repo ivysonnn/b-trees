@@ -7,12 +7,12 @@ Este projeto consiste em um programa desenvolvido em C para implementar dois tip
 # ⚙️ Pré-requisitos
 Para a execução do projeto, você deverá ter os seguintes componentes instalados no seu sistema:
 
-C++ versão 11 ou superior(compilador gcc/g++)
-CMake 3.16 ou superior
-Python 3.11 ou superior
-Bibliotecas Python:
-Numpy
-Matplotlib
+- C++ versão 11 ou superior(compilador gcc/g++)
+- CMake 3.16 ou superior
+- Python 3.11 ou superior
+- Bibliotecas Python:
+   - Numpy
+   - Matplotlib
 
 # 🚀 Como compilar
 Clone o repositório
