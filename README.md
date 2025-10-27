@@ -61,7 +61,7 @@ Após a execução inicial (`./btree -rb` ou `./btree -avl`), o programa entrar�
 | **`R`** ou **`r`** | **Remover Dado** | Solicita ao usuário um valor para ser **removido** da árvore.|
 
 # 👨‍💻 Alunos
-Allan Victor - **[@Allan073](https://github.com/Allan073))**
+Allan Victor - **[@Allan073](https://github.com/Allan073)**
 
 Chistian Daniel - **[@ChisSilva](https://github.com/ChisSilva)**
 
