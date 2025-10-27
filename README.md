@@ -16,10 +16,11 @@ Para a execução do projeto, você deverá ter os seguintes componentes instala
 
 # 🚀 Como compilar
 - Clone o repositório
-
+- 
+```bash
     git clone https://github.com/ivysonnn/b-trees.git 
-    
     cd b-trees
+  
 - Compile o projeto com CMake
 
 ```bash
