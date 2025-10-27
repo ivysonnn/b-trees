@@ -1,6 +1,7 @@
 #pragma once
 
 #include "btree.h"
+#include <algorithm>
 
 namespace edb
 {
