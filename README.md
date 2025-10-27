@@ -22,7 +22,7 @@ Para a execução do projeto, você deverá ter os seguintes componentes instala
     cd b-trees
 - Compile o projeto com CMake
 
-  ```text
+```bash
 # Crie o repositório para build do projeto
 mkdir build
 
@@ -33,6 +33,7 @@ cmake ..
 
 # Compile o projeto
 cmake --build .
+
 
 
 
